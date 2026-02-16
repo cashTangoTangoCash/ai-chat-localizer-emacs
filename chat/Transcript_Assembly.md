@@ -531,3 +531,100 @@
 > Now, when you run this script in the terminal after copying a long prompt, you'll get immediate visual feedback on the content saved.
 
 ---
+
+# PROMPT 7
+> how about a bit fancier: if the text file is long enough, let's see both the first couple lines of it and the last couple lines of it.  otherwise the user has to remember those first lines because they have scrolled away out of view because they scrolled down to get to the copy button on the ai chat website.
+
+---
+
+# RESPONSE 7
+> That is a superb idea\! It addresses a very common point of friction in these long, scrolling web interfaces.
+> 
+> The best way to implement this in a robust Bash script is to determine the length of the captured text. If it's short (e.g., less than 8 lines), we show everything. If it's long, we show the top and bottom with a visual separator to represent the omitted middle section.
+> 
+> Here is the enhanced script incorporating that logic:
+> 
+> ## 🗂️ Final Clipboard-to-File Script (`save_clipboard_preview_v2.sh`)
+> 
+> ```bash
+> #!/bin/bash
+> 
+> # --- Configuration ---
+> DEST_DIR="$HOME/Clipboard_Captures"
+> CLIPBOARD_SELECTION="clipboard"
+> PREVIEW_LINES=2    # Number of lines to show at the start AND end
+> MIN_LINES_FOR_OMISSION=8 # If content is shorter than this, show all of it
+> 
+> # --- Script Logic ---
+> 
+> # 1. Check for xclip availability
+> if ! command -v xclip &> /dev/null; then
+>     echo "ERROR: xclip not found. Please install xclip to use this script."
+>     exit 1
+> fi
+> 
+> # 2. Create the destination directory if it doesn't exist
+> mkdir -p "$DEST_DIR"
+> 
+> # 3. Read the clipboard content into a variable
+> CLIP_CONTENT=$(xclip -selection "$CLIPBOARD_SELECTION" -o 2>/dev/null)
+> XCLIP_STATUS=$?
+> 
+> if [ $XCLIP_STATUS -ne 0 ]; then
+>     echo "ERROR: Failed to read content from the clipboard."
+>     exit 1
+> fi
+> 
+> if [ -z "$CLIP_CONTENT" ]; then
+>     # Warning: Clipboard content was empty
+>     echo "WARNING: Clipboard was empty. No file was written."
+> else
+>     # 4. Generate timestamp and file path
+>     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+>     FILENAME="${TIMESTAMP}.txt"
+>     FILE_PATH="$DEST_DIR/$FILENAME"
+>     
+>     # 5. Save the content to the new file
+>     echo "$CLIP_CONTENT" > "$FILE_PATH"
+> 
+>     # --- Generate the Fancier Preview ---
+> 
+>     # Get the total number of lines in the content
+>     LINE_COUNT=$(echo "$CLIP_CONTENT" | wc -l)
+>     
+>     echo "SUCCESS: Non-empty content saved to: $FILE_PATH"
+>     echo "--- Preview (Total Lines: $LINE_COUNT) ---"
+> 
+>     if [ "$LINE_COUNT" -le "$MIN_LINES_FOR_OMISSION" ]; then
+>         # If short, just print the entire content
+>         echo "$CLIP_CONTENT"
+>     else
+>         # If long, print the first N lines
+>         echo "$CLIP_CONTENT" | head -n "$PREVIEW_LINES"
+>         
+>         # Print the omission marker
+>         echo "..."
+>         echo "--- (Omitted $((LINE_COUNT - 2 * PREVIEW_LINES)) lines) ---"
+>         echo "..."
+> 
+>         # Print the last N lines
+>         echo "$CLIP_CONTENT" | tail -n "$PREVIEW_LINES"
+>     fi
+>     
+>     echo "---------------"
+> fi
+> ```
+> 
+> ### How the Fancier Preview Works
+> 
+> 1.  **Count Lines:** `LINE_COUNT=$(echo "$CLIP_CONTENT" | wc -l)` gets the total line count.
+> 2.  **Conditional Check:**
+>       * If `$LINE_COUNT` is less than or equal to `MIN_LINES_FOR_OMISSION` (set to 8), it executes the simple `echo "$CLIP_CONTENT"` to show everything.
+>       * If it's long, the `else` block runs:
+>           * `head -n "$PREVIEW_LINES"` prints the top two lines.
+>           * The script then prints the `...` markers and a calculated count of how many lines were skipped: `((LINE_COUNT - 2 * PREVIEW_LINES))` (Total Lines minus 4 lines: 2 at the start, 2 at the end).
+>           * `tail -n "$PREVIEW_LINES"` prints the bottom two lines.
+> 
+> This provides maximum utility: quick verification for short clips, and immediate context for long conversation snippets.
+
+---
