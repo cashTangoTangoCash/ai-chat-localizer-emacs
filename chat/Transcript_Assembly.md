@@ -450,3 +450,84 @@
 > ```
 
 ---
+
+# PROMPT 6
+> for save_clipboard.sh, instead of the success message printed to terminal being just Non-empty content saved blah blah, let's also have a line or two of the text file.  this helps the user because copying prompts and replies gets boring and the user can lose their place, so echoing a bit of the beginning of what they just captured is good
+
+---
+
+# RESPONSE 6
+> That's an excellent usability enhancement\! Seeing the beginning of the captured text provides immediate context and reassurance that you saved the correct prompt or response.
+> 
+> Since we already capture the clipboard content into the **`CLIP_CONTENT`** variable, we can use simple Bash string manipulation to extract the first part for the success message.
+> 
+> Here is the revised script that echoes the file path along with the first two lines of the captured text.
+> 
+> ## 📝 Updated Clipboard-to-File Script (`save_clipboard_preview.sh`)
+> 
+> ```bash
+> #!/bin/bash
+> 
+> # --- Configuration ---
+> DEST_DIR="$HOME/Clipboard_Captures"
+> CLIPBOARD_SELECTION="clipboard"
+> PREVIEW_LINES=2  # Number of lines to show in the success message
+> PREVIEW_CHARS=80 # Max characters per line for the preview
+> 
+> # --- Script Logic ---
+> 
+> # 1. Check for xclip availability
+> if ! command -v xclip &> /dev/null; then
+>     echo "ERROR: xclip not found. Please install xclip to use this script."
+>     exit 1
+> fi
+> 
+> # 2. Create the destination directory if it doesn't exist
+> mkdir -p "$DEST_DIR"
+> 
+> # 3. Read the clipboard content into a variable
+> CLIP_CONTENT=$(xclip -selection "$CLIPBOARD_SELECTION" -o 2>/dev/null)
+> XCLIP_STATUS=$?
+> 
+> if [ $XCLIP_STATUS -ne 0 ]; then
+>     echo "ERROR: Failed to read content from the clipboard."
+>     exit 1
+> fi
+> 
+> if [ -z "$CLIP_CONTENT" ]; then
+>     # Warning: Clipboard content was empty
+>     echo "WARNING: Clipboard was empty. No file was written."
+> else
+>     # 4. Generate timestamp and file path
+>     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+>     FILENAME="${TIMESTAMP}.txt"
+>     FILE_PATH="$DEST_DIR/$FILENAME"
+>     
+>     # 5. Save the content to the new file
+>     echo "$CLIP_CONTENT" > "$FILE_PATH"
+> 
+>     # 6. Generate the content preview for the terminal
+>     # Use 'head' to get the first $PREVIEW_LINES, then 'cut' to limit line width for neatness
+>     PREVIEW_TEXT=$(echo "$CLIP_CONTENT" | head -n "$PREVIEW_LINES" | cut -c 1-"$PREVIEW_CHARS")
+> 
+>     # 7. Print Success message with the preview
+>     echo "SUCCESS: Non-empty content saved to: $FILE_PATH"
+>     echo "--- Preview ---"
+>     # Print the preview, replacing newlines in the preview with escaped newlines for clean echoing
+>     echo "$PREVIEW_TEXT" 
+>     echo "---------------"
+> fi
+> ```
+> 
+> ### Key Changes Explained
+> 
+> 1.  **Read and Save:** We continue to read the content into `CLIP_CONTENT` and save it to `$FILE_PATH`.
+> 2.  **Generate Preview:** The new line `PREVIEW_TEXT=$(echo "$CLIP_CONTENT" | head -n "$PREVIEW_LINES" | cut -c 1-"$PREVIEW_CHARS")` does the heavy lifting:
+>       * `echo "$CLIP_CONTENT"` pipes the captured text.
+>       * `head -n "$PREVIEW_LINES"` grabs the first 2 lines (or whatever you set `PREVIEW_LINES` to).
+>       * `cut -c 1-"$PREVIEW_CHARS"` truncates the lines to a maximum of 80 characters, which keeps the terminal output clean and prevents extremely long lines from wrapping awkwardly.
+> 3.  **Echo Output:** The final success block includes the file path, separators, and the `$PREVIEW_TEXT` itself.
+> 
+> Now, when you run this script in the terminal after copying a long prompt, you'll get immediate visual feedback on the content saved.
+
+---
