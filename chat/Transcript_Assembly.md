@@ -628,3 +628,114 @@
 > This provides maximum utility: quick verification for short clips, and immediate context for long conversation snippets.
 
 ---
+
+# PROMPT 8
+> I am interested in making a perhaps easier to use version of the clipboard capture script.  The script is meant to assist with making a local copy of a very long ai chat session.  The script is started in the terminal.  The user then goes to the web browser and copies prompt then response then prompt then response and on and on.  The script watches the clipboard.  Every time the contents of the clipboard change, the script interprets that as time to send clipboard contents to another auto-named text file.  To reassure the user that things are working, the script prints to the terminal what is going on.  In other words, the script is very similar to save_clipboard_preview_v2.sh, but it keeps running on its own until the user quits out of it.  This relieves the user of having to keep moving focus back to the terminal and running the script for every clipboard capture.  make sense?
+
+---
+
+# RESPONSE 8
+> This is a fantastic "Phase 2" for your project! What you are describing is a **Clipboard Watcher** or **Clipboard Logger**. By letting the script do the "watching," you stay in your browser and focus entirely on the AI conversation while the terminal acts as a silent, verifying recorder.
+> 
+> This approach perfectly captures the spirit of "Automate the Boring Stuff"—removing the friction of context-switching between your terminal and your browser.
+> 
+> Here is the "Watch Mode" version of the script.
+> 
+> ## 🕒 The Clipboard Watcher (`watch_clipboard.sh`)
+> 
+> This script runs an infinite loop that checks your clipboard every half-second. It only saves a file when it detects that the content has **changed**.
+> 
+> ```bash
+> #!/bin/bash
+> 
+> # --- Configuration ---
+> DEST_DIR="$HOME/Clipboard_Captures"
+> CLIPBOARD_SELECTION="clipboard"
+> PREVIEW_LINES=2    # Lines to show at top/bottom
+> MIN_LINES_FOR_OMISSION=8
+> CHECK_INTERVAL=0.5 # How often to check the clipboard (in seconds)
+> 
+> # --- Initialize ---
+> mkdir -p "$DEST_DIR"
+> # Store the current clipboard so we don't immediately save what's already there
+> LAST_CLIP=$(xclip -selection "$CLIPBOARD_SELECTION" -o 2>/dev/null)
+> CAPTURE_COUNT=0
+> 
+> clear
+> echo "🚀 Clipboard Watcher Started!"
+> echo "Saving to: $DEST_DIR"
+> echo "Instructions: Just copy text in your browser. I will handle the rest."
+> echo "Press [Ctrl+C] to stop."
+> echo "--------------------------------------------------"
+> 
+> # --- The Watch Loop ---
+> while true; do
+>     # 1. Grab the current clipboard content
+>     CURRENT_CLIP=$(xclip -selection "$CLIPBOARD_SELECTION" -o 2>/dev/null)
+>     
+>     # 2. Check if the content is different from the last saved content
+>     # AND check that it isn't empty
+>     if [[ "$CURRENT_CLIP" != "$LAST_CLIP" && -n "$CURRENT_CLIP" ]]; then
+>         
+>         # Increment counter
+>         ((CAPTURE_COUNT++))
+>         
+>         # 3. Generate filename and save
+>         TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+>         FILENAME="${TIMESTAMP}.txt"
+>         FILE_PATH="$DEST_DIR/$FILENAME"
+>         echo "$CURRENT_CLIP" > "$FILE_PATH"
+> 
+>         # 4. Generate the Fancy Preview
+>         LINE_COUNT=$(echo "$CURRENT_CLIP" | wc -l)
+>         
+>         echo -e "\n✅ [Capture #$CAPTURE_COUNT] Saved: $FILENAME"
+>         echo "--------------------------------------------------"
+>         
+>         if [ "$LINE_COUNT" -le "$MIN_LINES_FOR_OMISSION" ]; then
+>             echo "$CURRENT_CLIP"
+>         else
+>             echo "$CURRENT_CLIP" | head -n "$PREVIEW_LINES"
+>             echo "..."
+>             echo "--- (Omitted $((LINE_COUNT - 2 * PREVIEW_LINES)) lines) ---"
+>             echo "..."
+>             echo "$CURRENT_CLIP" | tail -n "$PREVIEW_LINES"
+>         fi
+>         
+>         echo "--------------------------------------------------"
+> 
+>         # 5. Update LAST_CLIP so we don't save the same thing twice
+>         LAST_CLIP="$CURRENT_CLIP"
+>     fi
+> 
+>     # Wait a bit before checking again to save CPU
+>     sleep "$CHECK_INTERVAL"
+> done
+> 
+> ```
+> 
+> ---
+> 
+> ### 🛠️ How to use this workflow
+> 
+> 1. **Open your Terminal** and run the script: `./watch_clipboard.sh`.
+> 2. **Go to your AI chat.**
+> 3. **Perform your "Copying Chain":**
+> * Highlight and copy **Prompt 1**.
+> * (Optional: Glance at terminal to see the preview confirm "Capture #1").
+> * Highlight and copy **Response 1**.
+> * Highlight and copy **Prompt 2**... and so on.
+> 
+> 
+> 4. **Finish:** When the chat is over, go back to the terminal and press `Ctrl+C`.
+> 5. **Assemble:** Run your **Python assembly script** to turn those files into one clean Markdown document.
+> 
+> ### Why this is better for you:
+> 
+> * **Zero Context Switching:** You never have to leave the browser.
+> * **The "Breadcrumb" Preview:** By seeing the first and last lines in the terminal, you can easily verify: *"Okay, the last thing I copied was definitely the end of the AI's long code block."*
+> * **Duplicate Protection:** If you accidentally hit `Ctrl+C` twice on the same text, the script is smart enough to ignore the second one because the content hasn't changed.
+> 
+> **Would you like me to tweak the Python script to also delete these "temp" files once the final Markdown file is successfully created?**
+
+---
