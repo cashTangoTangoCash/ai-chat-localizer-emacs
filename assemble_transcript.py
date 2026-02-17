@@ -1,34 +1,50 @@
+#!/usr/bin/env python3
+
+import sys
 import os
 import re
 from pathlib import Path
 
 # --- Configuration ---
-# Must match the directory used in the bash script
-SOURCE_DIR = Path.home() / "Clipboard_Captures"
-# The name of the final output file
-OUTPUT_FILE = Path.home() / "Transcript_Assembly.md"
+
+# Setup paths relative to the current working directory
+working_dir = Path.cwd()
+chat_dir = working_dir / "chat"
+captures_dir = chat_dir / "captures"
+
+SOURCE_DIR=captures_dir
+OUTPUT_FILE = chat_dir / "Transcript_Assembly.md"
+
+if not chat_dir.exists():
+    print(f"Error: chat directory not found at {chat_dir}")
+    sys.exit(1)
+
+if not captures_dir.exists():
+    print(f"Error: Captures directory not found at {captures_dir}")
+    sys.exit(1)
+
 # The starting number for the prompt/response sequence
 START_INDEX = 1
 
 def assemble_transcript():
-    """Reads all chronological text files and assembles them into a structured Markdown file."""
+    """Reads all chronological markdown files and assembles them into a structured Markdown file."""
     
     if not SOURCE_DIR.exists():
         print(f"Error: Source directory not found at {SOURCE_DIR}")
         return
 
-    # 1. Get all text files, sorted chronologically by filename (timestamp)
-    # Glob returns an iterable of all files matching the pattern *.txt
+    # 1. Get all markdown files, sorted chronologically by filename (timestamp)
+    # Glob returns an iterable of all files matching the pattern *.md
     # and we sort them to ensure correct chronological order.
     # We use list() for easy indexing later.
     try:
-        file_list = sorted(list(SOURCE_DIR.glob("*.txt")))
+        file_list = sorted(list(SOURCE_DIR.glob("*.md")))
     except Exception as e:
         print(f"Error reading files from source directory: {e}")
         return
 
     if not file_list:
-        print(f"No text files found in {SOURCE_DIR}. Nothing to assemble.")
+        print(f"No markdown files found in {SOURCE_DIR}. Nothing to assemble.")
         return
         
     current_index = START_INDEX

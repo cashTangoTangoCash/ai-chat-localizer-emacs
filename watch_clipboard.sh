@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # --- Configuration ---
-DEST_DIR="$HOME/Clipboard_Captures"
+DEST_DIR="./chat/captures"
 CLIPBOARD_SELECTION="clipboard"
 PREVIEW_LINES=2    # Lines to show at top/bottom
 MIN_LINES_FOR_OMISSION=8
@@ -34,7 +34,7 @@ while true; do
         
         # 3. Generate filename and save
         TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-        FILENAME="${TIMESTAMP}.txt"
+        FILENAME="${TIMESTAMP}.md"
         FILE_PATH="$DEST_DIR/$FILENAME"
         echo "$CURRENT_CLIP" > "$FILE_PATH"
 
