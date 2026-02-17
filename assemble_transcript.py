@@ -72,6 +72,10 @@ def assemble_transcript():
         # Append content, enclosed in a markdown blockquote for clean separation
         output_lines.append(f"> {content.replace(chr(10), chr(10) + '> ')}") # Ensure every line of content is quoted
         output_lines.append("\n---\n") # Separator between entries
+
+        # having trouble with this:
+        #output_lines.append(f"*Edit this prompt/response in emacs: `(find-file \"./captures/{file_path.name}\")`*\n\n")
+        output_lines.append(f"Edit this prompt/response in emacs: (find-file \"./captures/{file_path.name}\")\n\n")
         
         # Only increment the index after a full Prompt/Response cycle (i.e., after the Response)
         if not is_prompt:
