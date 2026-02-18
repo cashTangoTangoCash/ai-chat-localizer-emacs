@@ -1,0 +1,117 @@
+<h1>RESPONSE 15</h1>
+<p><strong><a href="20260217_232437_capture.html">← Previous</a> | <a href="../full_transcript.html">Full Index</a> | End →</strong></p>
+<hr />
+<p>You're right—&quot;Hyper-Transcript Assembler&quot; does sound like something written by a committee in the 90s. Let’s stick to the caffeinated reality: we’re building a <strong>Sequential Prompt-Response Engine</strong>.</p>
+<p>The loss of the <code># PROMPT N</code> and <code># RESPONSE N</code> headers was a major oversight on my part. Since you are capturing these in pairs (Prompt then Response), we can use a bit of &quot;Index Math&quot; to restore that structure automatically.</p>
+<h3>🧮 The Logic: Turning a List into Pairs</h3>
+<p>Since your captures follow a strict cadence (Prompt 1, Response 1, Prompt 2...), we can calculate the labels based on the file’s position in the sorted list:</p>
+<ul>
+<li><strong>Turn Number:</strong> <code>(index // 2) + 1</code></li>
+<li><strong>Type:</strong> <code>PROMPT</code> if the index is even (0, 2, 4...), <code>RESPONSE</code> if the index is odd (1, 3, 5...).</li>
+</ul>
+<hr />
+<h3>🛠️ Updated &quot;High-Octane&quot; Assembler</h3>
+<p>This version restores the headers in both the <strong>Full Transcript</strong> and the <strong>Individual HTML pages</strong>. It also keeps the &quot;Naked Lisp&quot; format for easy <code>C-x C-e</code> execution in Emacs.</p>
+<pre><code class="language-python">import subprocess
+from pathlib import Path
+
+def run_cmark(input_text, output_path):
+    &quot;&quot;&quot;Pipes text into cmark-gfm and saves to output_path.&quot;&quot;&quot;
+    try:
+        process = subprocess.Popen(
+            ['cmark-gfm', '--unsafe'], 
+            stdin=subprocess.PIPE, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, 
+            text=True
+        )
+        stdout, stderr = process.communicate(input=input_text)
+        with open(output_path, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+            f.write(stdout)
+    except FileNotFoundError:
+        print(&quot;Error: cmark-gfm not found.&quot;)
+
+def assemble_everything():
+    cwd = Path.cwd()
+    chat_dir = cwd / &quot;chat&quot;
+    captures_dir = chat_dir / &quot;captures&quot;
+    
+    chat_dir.mkdir(parents=True, exist_ok=True)
+    files = sorted(captures_dir.glob(&quot;capture_*.md&quot;))
+    
+    if not files:
+        print(&quot;No captures found.&quot;)
+        return
+
+    # --- PART 1: Full Transcript ---
+    full_md_path = chat_dir / &quot;full_transcript.md&quot;
+    full_html_path = chat_dir / &quot;full_transcript.html&quot;
+    full_content = [f&quot;# Full Transcript: {cwd.name}\n\n&quot;]
+
+    for i, f_path in enumerate(files):
+        # Calculate labels
+        turn_num = (i // 2) + 1
+        label = &quot;PROMPT&quot; if i % 2 == 0 else &quot;RESPONSE&quot;
+        
+        with open(f_path, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f_in:
+            body = f_in.read().strip()
+            
+            # Add the header you missed!
+            full_content.append(f&quot;# {label} {turn_num}&quot;)
+            full_content.append(body)
+            # Naked Lisp for easy Emacs evaluation
+            full_content.append(f&quot;\nEdit: (find-file \&quot;{f_path}\&quot;)\n\n---\n&quot;)
+
+    full_md_text = &quot;\n&quot;.join(full_content)
+    with open(full_md_path, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f_out:
+        f_out.write(full_md_text)
+    
+    run_cmark(full_md_text, full_html_path)
+
+    # --- PART 2: Linked Individual Pages ---
+    for i, f_path in enumerate(files):
+        turn_num = (i // 2) + 1
+        label = &quot;PROMPT&quot; if i % 2 == 0 else &quot;RESPONSE&quot;
+        title = f&quot;{label} {turn_num}&quot;
+
+        with open(f_path, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f_in:
+            raw_body = f_in.read().strip()
+
+        # Navigation Links
+        prev_link = f&quot;[← Previous]({files[i-1].stem}.html)&quot; if i &gt; 0 else &quot;← Start&quot;
+        next_link = f&quot;[Next →]({files[i+1].stem}.html)&quot; if i &lt; len(files) - 1 else &quot;End →&quot;
+        nav_bar = f&quot;\n\n**{prev_link} | [Full Index](../full_transcript.html) | {next_link}**\n\n&quot;
+
+        # Combine everything for the individual page
+        # Note: We put the Turn Label at the very top
+        linked_md = f&quot;# {title}\n{nav_bar}---\n\n{raw_body}\n\n---\n{nav_bar}Edit: (find-file \&quot;{f_path}\&quot;)&quot;
+        
+        output_html = captures_dir / f&quot;{f_path.stem}.html&quot;
+        run_cmark(linked_md, output_html)
+
+    print(f&quot;✅ Re-assembled with {len(files)} numbered segments.&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    assemble_everything()
+
+</code></pre>
+<hr />
+<h3>🧐 Why this restores your &quot;Common Sense&quot;</h3>
+<ol>
+<li><strong>Readability:</strong> The <code># PROMPT 1</code> headers give your eyes a &quot;hook&quot; when scrolling through the massive full transcript.</li>
+<li><strong>EWW Speed:</strong> Because we now label the individual HTML pages (e.g., <code># PROMPT 1</code>), when you jump into <code>eww</code>, you immediately know where you are in the timeline.</li>
+<li><strong>The Cadence:</strong> As long as you capture a Prompt and then its corresponding Response, the math <code>(i // 2) + 1</code> will stay perfectly in sync.</li>
+</ol>
+<h3>⌨️ A Quick Emacs Tip for EWW</h3>
+<p>Since you mentioned using <strong>Tab</strong> and <strong>Enter</strong> to move between captures: if you find yourself doing that often, you can add this to your <code>init.el</code> to make <code>eww</code> feel even more like a dedicated browser:</p>
+<pre><code class="language-elisp">(with-eval-after-load 'eww
+  ;; Use 'n' to go to the next link and 'p' for previous
+  (define-key eww-mode-map (kbd &quot;n&quot;) 'shr-next-link)
+  (define-key eww-mode-map (kbd &quot;p&quot;) 'shr-previous-link))
+
+</code></pre>
+<p>Now, you can just tap <code>n</code> then <code>Enter</code> to fly through your conversation like you're reading a book.</p>
+<p><strong>Would you like me to add a &quot;Last Modified&quot; timestamp to each capture's header so you can see exactly when you had that specific breakthrough?</strong></p>
+<hr />
+<p><strong><a href="20260217_232437_capture.html">← Previous</a> | <a href="../full_transcript.html">Full Index</a> | End →</strong></p>
+<p>Edit: (find-file &quot;/home/dad84/Documents/2025/20251124-gemini-scripts-to-speed-up-local-copy-ai-chat-to-markdown/chat/captures/20260217_232451_capture.md&quot;)</p>

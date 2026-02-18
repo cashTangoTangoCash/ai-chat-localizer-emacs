@@ -34,7 +34,7 @@ while true; do
         
         # 3. Generate filename and save
         TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-        FILENAME="${TIMESTAMP}.md"
+        FILENAME="${TIMESTAMP}_capture.md"
         FILE_PATH="$DEST_DIR/$FILENAME"
         echo "$CURRENT_CLIP" > "$FILE_PATH"
 

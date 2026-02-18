@@ -1,0 +1,75 @@
+<h1>RESPONSE 6</h1>
+<p><strong><a href="20251125_000632_capture.html">← Previous</a> | <a href="../full_transcript.html">Full Index</a> | <a href="20251125_001253_capture.html">Next →</a></strong></p>
+<hr />
+<p>That's an excellent usability enhancement! Seeing the beginning of the captured text provides immediate context and reassurance that you saved the correct prompt or response.</p>
+<p>Since we already capture the clipboard content into the <strong><code>CLIP_CONTENT</code></strong> variable, we can use simple Bash string manipulation to extract the first part for the success message.</p>
+<p>Here is the revised script that echoes the file path along with the first two lines of the captured text.</p>
+<h2>📝 Updated Clipboard-to-File Script (<code>save_clipboard_preview.sh</code>)</h2>
+<pre><code class="language-bash">#!/bin/bash
+
+# --- Configuration ---
+DEST_DIR=&quot;$HOME/Clipboard_Captures&quot;
+CLIPBOARD_SELECTION=&quot;clipboard&quot;
+PREVIEW_LINES=2  # Number of lines to show in the success message
+PREVIEW_CHARS=80 # Max characters per line for the preview
+
+# --- Script Logic ---
+
+# 1. Check for xclip availability
+if ! command -v xclip &amp;&gt; /dev/null; then
+    echo &quot;ERROR: xclip not found. Please install xclip to use this script.&quot;
+    exit 1
+fi
+
+# 2. Create the destination directory if it doesn't exist
+mkdir -p &quot;$DEST_DIR&quot;
+
+# 3. Read the clipboard content into a variable
+CLIP_CONTENT=$(xclip -selection &quot;$CLIPBOARD_SELECTION&quot; -o 2&gt;/dev/null)
+XCLIP_STATUS=$?
+
+if [ $XCLIP_STATUS -ne 0 ]; then
+    echo &quot;ERROR: Failed to read content from the clipboard.&quot;
+    exit 1
+fi
+
+if [ -z &quot;$CLIP_CONTENT&quot; ]; then
+    # Warning: Clipboard content was empty
+    echo &quot;WARNING: Clipboard was empty. No file was written.&quot;
+else
+    # 4. Generate timestamp and file path
+    TIMESTAMP=$(date +&quot;%Y%m%d_%H%M%S&quot;)
+    FILENAME=&quot;${TIMESTAMP}.txt&quot;
+    FILE_PATH=&quot;$DEST_DIR/$FILENAME&quot;
+    
+    # 5. Save the content to the new file
+    echo &quot;$CLIP_CONTENT&quot; &gt; &quot;$FILE_PATH&quot;
+
+    # 6. Generate the content preview for the terminal
+    # Use 'head' to get the first $PREVIEW_LINES, then 'cut' to limit line width for neatness
+    PREVIEW_TEXT=$(echo &quot;$CLIP_CONTENT&quot; | head -n &quot;$PREVIEW_LINES&quot; | cut -c 1-&quot;$PREVIEW_CHARS&quot;)
+
+    # 7. Print Success message with the preview
+    echo &quot;SUCCESS: Non-empty content saved to: $FILE_PATH&quot;
+    echo &quot;--- Preview ---&quot;
+    # Print the preview, replacing newlines in the preview with escaped newlines for clean echoing
+    echo &quot;$PREVIEW_TEXT&quot; 
+    echo &quot;---------------&quot;
+fi
+</code></pre>
+<h3>Key Changes Explained</h3>
+<ol>
+<li><strong>Read and Save:</strong> We continue to read the content into <code>CLIP_CONTENT</code> and save it to <code>$FILE_PATH</code>.</li>
+<li><strong>Generate Preview:</strong> The new line <code>PREVIEW_TEXT=$(echo &quot;$CLIP_CONTENT&quot; | head -n &quot;$PREVIEW_LINES&quot; | cut -c 1-&quot;$PREVIEW_CHARS&quot;)</code> does the heavy lifting:
+<ul>
+<li><code>echo &quot;$CLIP_CONTENT&quot;</code> pipes the captured text.</li>
+<li><code>head -n &quot;$PREVIEW_LINES&quot;</code> grabs the first 2 lines (or whatever you set <code>PREVIEW_LINES</code> to).</li>
+<li><code>cut -c 1-&quot;$PREVIEW_CHARS&quot;</code> truncates the lines to a maximum of 80 characters, which keeps the terminal output clean and prevents extremely long lines from wrapping awkwardly.</li>
+</ul>
+</li>
+<li><strong>Echo Output:</strong> The final success block includes the file path, separators, and the <code>$PREVIEW_TEXT</code> itself.</li>
+</ol>
+<p>Now, when you run this script in the terminal after copying a long prompt, you'll get immediate visual feedback on the content saved.</p>
+<hr />
+<p><strong><a href="20251125_000632_capture.html">← Previous</a> | <a href="../full_transcript.html">Full Index</a> | <a href="20251125_001253_capture.html">Next →</a></strong></p>
+<p>Edit: (find-file &quot;/home/dad84/Documents/2025/20251124-gemini-scripts-to-speed-up-local-copy-ai-chat-to-markdown/chat/captures/20251125_000642_capture.md&quot;)</p>
