@@ -17,7 +17,7 @@ A Bash script that monitors the Linux clipboard.
 - **Feature:** Includes a terminal preview to help you track your progress.
 - **Requirement:** `xclip` (e.g., `sudo pacman -S xclip`)
 
-### 2. `chat-assemble.py` (The Builder)
+### 2. `chat_assemble.py` (The Builder)
 A Python script that builds the localized web.
 - **How it works:** Sorts files by timestamp and alternates labels between **PROMPT** and **RESPONSE**.
 - **Output:** Creates a master `full_transcript.html` and individual pages with **Next/Previous** navigation.
@@ -55,7 +55,7 @@ Step 3. Build the Local Web:
 Run the assembler to generate the HTML site:
   
 ```
-python chat-assemble.py
+python chat_assemble.py
 ```
 
 Resulting structure:
