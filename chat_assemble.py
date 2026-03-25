@@ -34,7 +34,16 @@ def assemble_everything():
     # --- PART 1: Full Transcript ---
     full_md_path = chat_dir / "full_transcript.md"
     full_html_path = chat_dir / "full_transcript.html"
-    full_content = [f"# Full Transcript: {cwd.name}\n\n"]
+
+    # We add a small <style> block here. 
+    # This stays in the MD file but browsers will use it to draw table lines.
+    style_header = """<style>
+    table { border-collapse: collapse; width: 100%; margin: 20px 0; font-family: sans-serif; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background-color: #f4f4f4; }
+    </style>\n\n"""
+
+    full_content = [style_header, f"# Full Transcript: {cwd.name}\n\n"]
 
     for i, f_path in enumerate(files):
         # Calculate labels
