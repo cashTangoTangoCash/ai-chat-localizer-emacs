@@ -7,7 +7,7 @@ def run_cmark(input_text, output_path):
     """Pipes text into cmark-gfm and saves to output_path."""
     try:
         process = subprocess.Popen(
-            ['cmark-gfm', '--unsafe'], 
+            ['cmark-gfm', '--unsafe', '-e', 'table'],
             stdin=subprocess.PIPE, 
             stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE, 
