@@ -1,0 +1,46 @@
+<style>table{border-collapse:collapse;width:100%;margin:1em 0;}th,td{border:1px solid #ccc;padding:8px;text-align:left;}th{background-color:#f8f8f8;}</style>
+<h1>RESPONSE 26</h1>
+<p><strong><a href="20260325_135043_capture.html">← Previous</a> | <a href="../full_transcript.html">Full Index</a> | <a href="20260325_135050_capture.html">Next →</a></strong></p>
+<hr />
+<p>This is the perfect moment to transition the <code>README.md</code> from a &quot;project description&quot; to a &quot;usable toolkit.&quot; Since we want to respect your preference for a durable, professional setup that works with your muscle memory (and avoids the security &quot;bridge&quot; of <code>/usr/local/bin</code>), we should focus on the <strong>Local Bin</strong> installation method.</p>
+<p>Here is a drafted <strong>Installation</strong> section. You can insert this right after the <strong>Components</strong> section and before the <strong>Usage Workflow</strong>.</p>
+<hr />
+<h2>⚙️ Installation (The Linux Power-User Way)</h2>
+<p>To run these scripts from any directory without using <code>sudo</code>, it is recommended to place them in a local <code>bin</code> folder within your home directory.</p>
+<h3>1. Install Dependencies</h3>
+<p>Ensure you have the necessary system tools installed (example for Arch/EndeavourOS):</p>
+<pre><code class="language-bash">sudo pacman -S xclip cmark-gfm
+</code></pre>
+<h3>2. Setup your Local Bin</h3>
+<p>If you don't already have a local bin directory, create one and add it to your shell's PATH:</p>
+<pre><code class="language-bash">mkdir -p ~/.local/bin
+</code></pre>
+<p>Add the following line to your <code>~/.bashrc</code> (or <code>~/.zshrc</code>):</p>
+<pre><code class="language-bash">export PATH=&quot;$HOME/.local/bin:$PATH&quot;
+</code></pre>
+<p><em>Note: Run <code>source ~/.bashrc</code> to apply the changes to your current terminal.</em></p>
+<h3>3. Deploy the Scripts</h3>
+<p>Move the scripts to your local bin and ensure they are executable. You can rename them here to match your preferred command-line habits:</p>
+<pre><code class="language-bash">cp chat-capture.sh ~/.local/bin/capture
+cp chat_assemble.py ~/.local/bin/assemble
+chmod +x ~/.local/bin/capture ~/.local/bin/assemble
+</code></pre>
+<hr />
+<h2>🛠️ Updated Components (Refined)</h2>
+<h3>2. <code>chat_assemble.py</code> (The Builder)</h3>
+<ul>
+<li><strong>Requirement:</strong> <code>cmark-gfm</code> (Version 0.29.0.gfm.0 or later).</li>
+<li><strong>Note:</strong> This script uses the <code>-e table</code> extension to properly render GitHub Flavored Markdown (GFM) tables. It also injects a minimalist CSS block into the HTML output to ensure clean grid lines are visible in browsers like Firefox and Emacs <code>eww</code>.</li>
+</ul>
+<hr />
+<h3>Why this version works for you:</h3>
+<ol>
+<li><strong>Muscle Memory:</strong> By renaming them to <code>capture</code> and <code>assemble</code> in the installation step, your <code>Ctrl-r ass</code> will work even faster, and eventually, your brain might just switch to typing <code>assemble</code> directly.</li>
+<li><strong>No <code>sudo</code> Required:</strong> You can update the code in your <code>~/.local/bin</code> anytime without a password.</li>
+<li><strong>Documentation:</strong> It explicitly mentions the <code>cmark-gfm</code> table requirement, so your &quot;Soloflex Shock Ring&quot; research is never rendered as a messy paragraph again.</li>
+</ol>
+<h3>🏁 Final Polish</h3>
+<p>Since you mentioned the <code>README.md</code> is currently missing this, would you like me to generate the <strong>full, combined text</strong> of the new <code>README.md</code> so you can just copy-paste the whole thing into GitHub and be done with it?</p>
+<hr />
+<p><strong><a href="20260325_135043_capture.html">← Previous</a> | <a href="../full_transcript.html">Full Index</a> | <a href="20260325_135050_capture.html">Next →</a></strong></p>
+<p>Edit: (find-file &quot;/home/dad84/Documents/2026/20260217-gemini-make-local-copy-of-ai-chat/chat/captures/20260325_135047_capture.md&quot;)</p>

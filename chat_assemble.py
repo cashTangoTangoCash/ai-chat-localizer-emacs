@@ -4,11 +4,11 @@ import subprocess
 from pathlib import Path
 
 def run_cmark(input_text, output_path):
-    """Pipes text into cmark-gfm and saves to output_path."""
+    """Pipes text into cmark-gfm with Ghostwriter-style extensions."""
     try:
-        # Use the explicit long-form flag for the extension
+        # Ghostwriter enables these by default to match GitHub behavior
         process = subprocess.Popen(
-            ['cmark-gfm', '--unsafe', '--extension', 'table'], 
+            ['cmark-gfm', '--unsafe', '-e', 'table', '-e', 'strikethrough', '-e', 'autolink'], 
             stdin=subprocess.PIPE, 
             stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE, 
@@ -16,12 +16,13 @@ def run_cmark(input_text, output_path):
         )
         stdout, stderr = process.communicate(input=input_text)
         
-        # Debug: Print stderr if there's an error from the cmark command
-        if stderr:
-            print(f"cmark-gfm warning: {stderr}")
-
+        # Injected CSS: This is what makes the 'invisible' HTML table 
+        # look 'right' like it does in Ghostwriter.
+        css = "<style>table{border-collapse:collapse;width:100%;margin:1em 0;}th,td{border:1px solid #ccc;padding:8px;text-align:left;}th{background-color:#f8f8f8;}</style>\n"
+        
         with open(output_path, "w", encoding="utf-8") as f:
-            f.write(stdout)
+            f.write(css + stdout)
+            
     except FileNotFoundError:
         print("Error: cmark-gfm not found.")
         
@@ -41,16 +42,8 @@ def assemble_everything():
     full_md_path = chat_dir / "full_transcript.md"
     full_html_path = chat_dir / "full_transcript.html"
 
-    # We add a small <style> block here. 
-    # This stays in the MD file but browsers will use it to draw table lines.
-    style_header = """<style>
-    table { border-collapse: collapse; width: 100%; margin: 20px 0; font-family: sans-serif; }
-    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-    th { background-color: #f4f4f4; }
-    </style>\n\n"""
-
-    full_content = [style_header, f"# Full Transcript: {cwd.name}\n\n"]
-
+    full_content = [f"# Full Transcript: {cwd.name}\n\n"]
+    
     for i, f_path in enumerate(files):
         # Calculate labels
         turn_num = (i // 2) + 1

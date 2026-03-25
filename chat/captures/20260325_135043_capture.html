@@ -1,0 +1,79 @@
+<style>table{border-collapse:collapse;width:100%;margin:1em 0;}th,td{border:1px solid #ccc;padding:8px;text-align:left;}th{background-color:#f8f8f8;}</style>
+<h1>PROMPT 26</h1>
+<p><strong><a href="20260325_135038_capture.html">← Previous</a> | <a href="../full_transcript.html">Full Index</a> | <a href="20260325_135047_capture.html">Next →</a></strong></p>
+<hr />
+<p>ok, I checked README.md - there is no 'installation' section at all.  Let's see what you come up with.  The exisitng README.md is:</p>
+<h1>AI Chat Localizer</h1>
+<p>A simple, durable system for capturing browser-based AI conversations (Gemini, ChatGPT, etc.) and converting them into a navigable local web of Markdown and HTML files.</p>
+<h2>🚀 Why this exists</h2>
+<p>Browser-based chats are ephemeral and locked in &quot;The Cloud.&quot; This tool gives you <strong>data sovereignty</strong> by allowing you to:</p>
+<ol>
+<li><strong>Capture:</strong> Watch your clipboard and save Prompts/Responses as individual files.</li>
+<li><strong>Assemble:</strong> Combine captures into a single &quot;Full Transcript&quot; and a series of linked HTML pages.</li>
+<li><strong>Browse:</strong> Use Emacs (specifically <code>eww</code>) to fly through your history with keyboard-driven speed.</li>
+<li><strong>Search:</strong> Use <code>ag</code> (The Silver Searcher) or <code>grep</code> to instantly find that one specific breakthrough in a sea of past encounters.</li>
+</ol>
+<h2>🛠️ Components</h2>
+<h3>1. <code>chat-capture.sh</code> (The Watcher)</h3>
+<p>A Bash script that monitors the Linux clipboard. </p>
+<ul>
+<li><strong>How it works:</strong> Every time you copy text, it creates a new <code>.md</code> file in <code>./chat/captures/</code>.</li>
+<li><strong>Feature:</strong> Includes a terminal preview to help you track your progress.</li>
+<li><strong>Requirement:</strong> <code>xclip</code> (e.g., <code>sudo pacman -S xclip</code>)</li>
+</ul>
+<h3>2. <code>chat_assemble.py</code> (The Builder)</h3>
+<p>A Python script that builds the localized web.</p>
+<ul>
+<li><strong>How it works:</strong> Sorts files by timestamp and alternates labels between <strong>PROMPT</strong> and <strong>RESPONSE</strong>.</li>
+<li><strong>Output:</strong> Creates a master <code>full_transcript.html</code> and individual pages with <strong>Next/Previous</strong> navigation.</li>
+<li><strong>Requirement:</strong> <code>cmark-gfm</code> (e.g., <code>sudo pacman -S cmark-gfm</code>)</li>
+</ul>
+<h2>Usage: example result</h2>
+<p>To see an example of the output, look at chat folder in this repo.</p>
+<h2>📖 Usage Workflow</h2>
+<p>Step 0: Preparation
+<code>cd</code> into your working folder for the topic of interest.</p>
+<p>Step 1: <strong>Start the Watcher:</strong></p>
+<pre><code>./chat-capture.sh
+</code></pre>
+<p>Step 2: Capture the Conversation</p>
+<p>Simply copy your Prompt, then copy the AI's Response. The terminal will show snippets of what you captured to keep you on track.</p>
+<p>Resulting Files:</p>
+<pre><code>chat/captures/
+├── 20260222_144201_capture.md  &lt;-- Prompt
+└── 20260222_144215_capture.md  &lt;-- Response
+</code></pre>
+<p>Step 3. Build the Local Web:</p>
+<p>Run the assembler to generate the HTML site:
+  </p>
+<pre><code>python chat_assemble.py
+</code></pre>
+<p>Resulting structure:</p>
+<pre><code>chat/
+├── full_transcript.html       &lt;-- The &quot;Master List&quot;
+├── full_transcript.md
+└── captures/
+    ├── 20260222_144201_capture.html  &lt;-- Linked page
+    └── 20260222_144201_capture.md
+</code></pre>
+<p>Step 4: Review in Emacs</p>
+<p>Open chat/full_transcript.html in eww.</p>
+<ul>
+<li>
+<p>Each entry includes a Lisp-powered &quot;Edit&quot; link to jump directly to the source .md file.</p>
+</li>
+<li>
+<p>Use the Next/Previous links in the captures to read the session like a book.
+    </p>
+</li>
+</ul>
+<h2>How it was Developed</h2>
+<p>This script was built through an iterative dialogue with Gemini (free version). For a
+detailed look at the logic, the alternative approaches considered, and
+the evolution of the code, check the contents of the chat/
+folder in this repository.</p>
+<h2>License</h2>
+<p>See LICENSE file</p>
+<hr />
+<p><strong><a href="20260325_135038_capture.html">← Previous</a> | <a href="../full_transcript.html">Full Index</a> | <a href="20260325_135047_capture.html">Next →</a></strong></p>
+<p>Edit: (find-file &quot;/home/dad84/Documents/2026/20260217-gemini-make-local-copy-of-ai-chat/chat/captures/20260325_135043_capture.md&quot;)</p>
