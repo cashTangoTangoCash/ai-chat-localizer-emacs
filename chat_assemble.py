@@ -6,19 +6,25 @@ from pathlib import Path
 def run_cmark(input_text, output_path):
     """Pipes text into cmark-gfm and saves to output_path."""
     try:
+        # Use the explicit long-form flag for the extension
         process = subprocess.Popen(
-            ['cmark-gfm', '--unsafe', '-e', 'table'],
+            ['cmark-gfm', '--unsafe', '--extension', 'table'], 
             stdin=subprocess.PIPE, 
             stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE, 
             text=True
         )
         stdout, stderr = process.communicate(input=input_text)
+        
+        # Debug: Print stderr if there's an error from the cmark command
+        if stderr:
+            print(f"cmark-gfm warning: {stderr}")
+
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(stdout)
     except FileNotFoundError:
         print("Error: cmark-gfm not found.")
-
+        
 def assemble_everything():
     cwd = Path.cwd()
     chat_dir = cwd / "chat"
